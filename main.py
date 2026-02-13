@@ -57,39 +57,33 @@ for col in cols:
 
 # Create a new DataFrame based on specific criteria
 
-bancolombia_visa_october_2025 = tarjetas[
+bancolombia_visa_2025 = tarjetas[
     (tarjetas['NOMBREENTIDAD'] == 'BANCOLOMBIA S.A.') &
     (tarjetas['NOMBRE_UCA'] == 'CREDIBANCO-VISA') &
-    (tarjetas['FECHACORTE'] == pd.Timestamp('2025-10-31'))
+    (tarjetas['FECHACORTE'].dt.year == 2025) &
+    (tarjetas['SUBCUENTA'] == 35)
 ]
 
-print(bancolombia_visa_october_2025)
-
-
-
-total_2025 = tarjetas[
-    (tarjetas['SUBCUENTA'] == 35) &
+bancolombia_visa_2025 = tarjetas[
     (tarjetas['NOMBREENTIDAD'] == 'BANCOLOMBIA S.A.') &
     (tarjetas['NOMBRE_UCA'] == 'CREDIBANCO-VISA') &
-    (tarjetas['FECHACORTE'].dt.year == 2025)
-]['TOTAL_TARJETAS'].sum()
+    (tarjetas['FECHACORTE'].dt.year == 2025)]
 
-print(total_2025)
 
-# Make sure FECHACORTE is datetime
-tarjetas['FECHACORTE'] = pd.to_datetime(tarjetas['FECHACORTE'])
+print(bancolombia_visa_2025.sort_values(by='SUBCUENTA'))
 
-mask = (
-    (tarjetas['SUBCUENTA'] == 35) &
-    (tarjetas['NOMBREENTIDAD'] == 'BANCOLOMBIA S.A.') &
-    (tarjetas['NOMBRE_UCA'] == 'CREDIBANCO-VISA') &
-    (tarjetas['FECHACORTE'].dt.year == 2025)
-)
+
+
+
+#print(bancolombia_visa_2025[['PERSONA_NATURAL', 'PERSONA_JURIDICA', 'TOTAL_TARJETAS']].sum())
 
 summary_df = (
-    tarjetas.loc[mask]
+    tarjetas.loc[(tarjetas['NOMBREENTIDAD'].isin(['BANCOLOMBIA S.A.', 'BANCO DAVIVIENDA S.A.', 'BANCO DE BOGOTA S. A.', 'BANCO BILBAO VIZCAYA ARGENTARIA COLOMBIA S.A. BBVA COLOMBIA'])) &
+    (tarjetas['NOMBRE_UCA'] == 'CREDIBANCO-VISA') &
+    (tarjetas['FECHACORTE'].dt.year == 2025) &
+    (tarjetas['SUBCUENTA'] == 55)]
     .groupby(
-        ['NOMBREENTIDAD', 'NOMBRE_UCA', 'SUBCUENTA'],
+        ['TIPOENTIDAD','NOMBREENTIDAD', 'NOMBRE_UCA', 'SUBCUENTA'],
         as_index=False
     )[[
         'PERSONA_NATURAL',
