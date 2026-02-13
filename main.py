@@ -1,16 +1,104 @@
-# This is a sample Python script.
+# Import pandas
+import pandas as pd
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+# charge source file
+data = './data/Tarjetas_de_crédito_y_débito_20260213.csv'
+
+# create DataFrame
+tarjetas = pd.read_csv(data)
+
+# Show all rows
+pd.set_option('display.max_rows', None)
+
+# Show all columns
+pd.set_option('display.max_columns', None)
+
+# Prevent column width truncation
+pd.set_option('display.max_colwidth', None)
+
+# Prevent line wrapping (optional but useful)
+pd.set_option('display.width', None)
+
+# verify DataFrame
+print(tarjetas.head())
+
+# Verify the datatypes on each column
+
+print(tarjetas.dtypes)
+
+# data type convertion and cleaning
+tarjetas['FECHACORTE'] = pd.to_datetime(
+    tarjetas['FECHACORTE'],
+    format='%d/%m/%Y'
+)
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+
+print(tarjetas.dtypes)
+
+### Present Basic info about the DataFrame
+
+print(tarjetas.head())
+print(tarjetas.dtypes)
+print(tarjetas.columns)
+print(tarjetas.shape)
+
+import pandas as pd
+
+cols = ['PERSONA_NATURAL', 'PERSONA_JURIDICA', 'TOTAL_TARJETAS']
+
+for col in cols:
+    tarjetas[col] = (
+        tarjetas[col]
+        .str.replace(',', '', regex=False)  # remove thousands separator
+    )
+
+    tarjetas[col] = pd.to_numeric(tarjetas[col], errors='coerce')
+
+# Create a new DataFrame based on specific criteria
+
+bancolombia_visa_october_2025 = tarjetas[
+    (tarjetas['NOMBREENTIDAD'] == 'BANCOLOMBIA S.A.') &
+    (tarjetas['NOMBRE_UCA'] == 'CREDIBANCO-VISA') &
+    (tarjetas['FECHACORTE'] == pd.Timestamp('2025-10-31'))
+]
+
+print(bancolombia_visa_october_2025)
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+total_2025 = tarjetas[
+    (tarjetas['SUBCUENTA'] == 35) &
+    (tarjetas['NOMBREENTIDAD'] == 'BANCOLOMBIA S.A.') &
+    (tarjetas['NOMBRE_UCA'] == 'CREDIBANCO-VISA') &
+    (tarjetas['FECHACORTE'].dt.year == 2025)
+]['TOTAL_TARJETAS'].sum()
+
+print(total_2025)
+
+# Make sure FECHACORTE is datetime
+tarjetas['FECHACORTE'] = pd.to_datetime(tarjetas['FECHACORTE'])
+
+mask = (
+    (tarjetas['SUBCUENTA'] == 35) &
+    (tarjetas['NOMBREENTIDAD'] == 'BANCOLOMBIA S.A.') &
+    (tarjetas['NOMBRE_UCA'] == 'CREDIBANCO-VISA') &
+    (tarjetas['FECHACORTE'].dt.year == 2025)
+)
+
+summary_df = (
+    tarjetas.loc[mask]
+    .groupby(
+        ['NOMBREENTIDAD', 'NOMBRE_UCA', 'SUBCUENTA'],
+        as_index=False
+    )[[
+        'PERSONA_NATURAL',
+        'PERSONA_JURIDICA',
+        'TOTAL_TARJETAS'
+    ]]
+    .sum()
+)
+
+summary_df['FECHACORTE'] = '2025'
+
+print(summary_df)

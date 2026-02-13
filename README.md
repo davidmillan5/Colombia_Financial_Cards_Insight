@@ -20,3 +20,5 @@ cards at credit institutions.
 | PERSONA_NATURAL  | persona_natural  | int              | Reported value (number of cards or monetary balance) corresponding to individual customers (natural persons). |
 | PERSONA_JURIDICA | persona_juridica | int              | Reported value (number of cards or monetary balance) corresponding to corporate customers (legal entities). |
 | TOTAL_TARJETAS   | total_tarjetas   | int              | Aggregate total of the metric reported, typically representing the sum of natural and legal persons where applicable. |
+
+- [Information Source](https://www.datos.gov.co/Econom-a-y-Finanzas/Tarjetas-de-cr-dito-y-d-bito/h2jg-r3zg/about_data)
